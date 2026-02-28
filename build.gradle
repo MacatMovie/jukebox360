@@ -1,0 +1,52 @@
+plugins {
+  id 'net.minecraftforge.gradle' version '6.0.24'
+  id 'eclipse'
+  id 'org.spongepowered.mixin' version '0.7.+'
+}
+
+group = 'com.macatmovie'
+version = '1.0.5'
+
+java { toolchain.languageVersion = JavaLanguageVersion.of(17) }
+
+minecraft {
+  mappings channel: 'official', version: '1.20.1'
+  runs {
+    client {
+      workingDirectory project.file('run')
+      property 'forge.logging.console.level', 'info'
+      mods { jukebox_360 { source sourceSets.main } }
+    }
+  }
+}
+
+mixin {
+  add sourceSets.main, "jukebox_360.refmap.json"
+  config "jukebox_360.mixins.json"
+}
+
+repositories {
+  mavenCentral()
+  maven { url = 'https://repo.spongepowered.org/repository/maven-public' }
+}
+
+dependencies {
+  minecraft "net.minecraftforge:forge:1.20.1-47.4.4"
+  annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+}
+
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+
+jar {
+  from("LICENSE") { into("META-INF") }
+
+  archiveFileName = "Jukebox_360-forge-1.20.1-v${version}.jar"
+  manifest {
+    attributes([
+      "Implementation-Title"   : "Jukebox 360°",
+      "Implementation-Version" : project.version,
+      "Implementation-Vendor"  : "macatmovie",
+      "MixinConfigs"           : "jukebox_360.mixins.json"
+    ])
+  }
+}

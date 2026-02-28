@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="jukebox_360"
+version="${file.jarVersion}"
+displayName="Jukebox 360°"
+logoFile="logo.png"
+authors="macatmovie"
+description="Fixes extreme turn-away muting for jukebox/music discs and note blocks while keeping natural loudness. Client-only."
+
+[[mixins]]
+config="jukebox_360.mixins.json"
+
+[[dependencies.jukebox_360]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.jukebox_360]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1]"
+ordering="NONE"
+side="CLIENT"
