@@ -137,5 +137,6 @@ public class ChannelOpenALMixin implements ChannelTagAccessor {
         jukebox360$records = false;
         jukebox360$affected = false;
         jukebox360$worldPos = null;
+        Jukebox360Runtime.remove(this);
     }
 }
