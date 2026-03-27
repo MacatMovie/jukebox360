@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "jukebox_360",
+  "version": "${version}",
+  "name": "Jukebox 360\u00b0",
+  "description": "Keeps jukebox & note block audio audible when turned away, while retaining natural distance falloff and configurable directionality.",
+  "authors": [
+    "macatmovie"
+  ],
+  "license": "MIT",
+  "icon": "logo.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.macatmovie.jukebox360.Jukebox360Fabric"
+    ]
+  },
+  "mixins": [
+    "jukebox_360.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "1.21.1",
+    "java": ">=21"
+  }
+}
