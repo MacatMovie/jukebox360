@@ -1,52 +1,47 @@
 plugins {
-  id 'net.minecraftforge.gradle' version '6.0.24'
-  id 'eclipse'
-  id 'org.spongepowered.mixin' version '0.7.+'
+    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+    id 'maven-publish'
 }
 
-group = 'com.macatmovie'
-version = '1.0.5'
+version = project.mod_version
+group = project.maven_group
 
-java { toolchain.languageVersion = JavaLanguageVersion.of(17) }
-
-minecraft {
-  mappings channel: 'official', version: '1.20.1'
-  runs {
-    client {
-      workingDirectory project.file('run')
-      property 'forge.logging.console.level', 'info'
-      mods { jukebox_360 { source sourceSets.main } }
-    }
-  }
-}
-
-mixin {
-  add sourceSets.main, "jukebox_360.refmap.json"
-  config "jukebox_360.mixins.json"
+base {
+    archivesName = project.archives_base_name
 }
 
 repositories {
-  mavenCentral()
-  maven { url = 'https://repo.spongepowered.org/repository/maven-public' }
+    // Loom adds the essential repositories automatically.
 }
 
 dependencies {
-  minecraft "net.minecraftforge:forge:1.20.1-47.4.4"
-  annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 }
 
-tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+processResources {
+    inputs.property "version", project.version
+    filesMatching("fabric.mod.json") {
+        expand "version": inputs.properties.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 17
+}
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
+    withSourcesJar()
+sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 jar {
-  from("LICENSE") { into("META-INF") }
-
-  archiveFileName = "Jukebox_360-forge-1.20.1-v${version}.jar"
-  manifest {
-    attributes([
-      "Implementation-Title"   : "Jukebox 360°",
-      "Implementation-Version" : project.version,
-      "Implementation-Vendor"  : "macatmovie",
-      "MixinConfigs"           : "jukebox_360.mixins.json"
-    ])
-  }
+    from("LICENSE") {
+        rename { "${it}_${project.archives_base_name}" }
+    }
 }
+jar { archiveFileName = "Jukebox_360-fabric-${minecraft_version}-v${mod_version}.jar" }
+
