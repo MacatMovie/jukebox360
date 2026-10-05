@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "jukebox_360",
+  "version": "${version}",
+  "name": "Jukebox 360",
+  "description": "Keeps jukebox, note-block, and configured block audio audible when turned away, with natural distance falloff, an in-game config screen, and optional compatibility for modded audio blocks.",
+  "authors": [
+    "macatmovie"
+  ],
+  "license": "MIT",
+  "icon": "logo.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.macatmovie.jukebox360.Jukebox360Fabric"
+    ],
+    "voicechat": [
+      "com.macatmovie.jukebox360.compat.voicechat.Jukebox360VoicechatPlugin"
+    ]
+  },
+  "mixins": [
+    "jukebox_360.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.0",
+    "minecraft": ">=26.2 <26.3",
+    "java": ">=25"
+  },
+  "suggests": {
+    "voicechat_api": ">=2.6.0"
+  }
+}

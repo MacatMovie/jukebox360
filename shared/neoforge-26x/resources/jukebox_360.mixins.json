@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.macatmovie.jukebox360.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "ChannelMixin",
+    "MinecraftTickMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

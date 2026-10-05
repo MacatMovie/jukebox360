@@ -1,0 +1,58 @@
+plugins {
+    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+    id 'maven-publish'
+}
+
+// Shared-source layout used by the Jukebox 360 multiversion repository.
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', '../../shared/fabric-legacy/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources', '../../shared/fabric-legacy/resources', '../../shared/global/resources']
+        }
+    }
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    // Loom adds the essential repositories automatically.
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("fabric.mod.json") {
+        expand "version": inputs.properties.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+jar {
+    from("../../LICENSE") {
+        rename { "${it}_${project.archives_base_name}" }
+    }
+}
+jar { archiveFileName = "Jukebox_360-fabric-${minecraft_version}-v${mod_version}.jar" }
+

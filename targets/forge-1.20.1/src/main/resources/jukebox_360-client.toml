@@ -1,0 +1,13 @@
+# Jukebox 360 client config (defaults)
+
+# 0.0 = fully anchored to the original sound position (vanilla directionality).
+# 1.0 = fully projected toward the listener look direction.
+# Recommended/default: 0.85
+anchor_blend = 0.85
+
+# Enable detailed Jukebox 360 audio-hook logging for troubleshooting.
+debug_log = false
+
+# Additional block registry IDs whose positional sounds should be handled by Jukebox 360.
+# This is checked only when a sound starts; there is no continuous world scan.
+audio_source_block_whitelist = ["minecraft:jukebox", "music_disc_maker:golden_jukebox"]
