@@ -13,6 +13,9 @@
   "entrypoints": {
     "client": [
       "com.macatmovie.jukebox360.Jukebox360Fabric"
+    ],
+    "modmenu": [
+      "com.macatmovie.jukebox360.compat.modmenu.Jukebox360ModMenu"
     ]
   },
   "mixins": [
@@ -22,5 +25,8 @@
     "fabricloader": ">=0.16.0",
     "minecraft": "1.20.1",
     "java": ">=17"
+  },
+  "suggests": {
+    "modmenu": "*"
   }
 }

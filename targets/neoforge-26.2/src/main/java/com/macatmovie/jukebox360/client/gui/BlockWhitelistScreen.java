@@ -1,6 +1,7 @@
 package com.macatmovie.jukebox360.client.gui;
 
 import com.macatmovie.jukebox360.config.ClientConfig;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -9,6 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class BlockWhitelistScreen extends Screen {
+    @Override
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        // 26.x uses the render-state extraction pipeline instead of Screen#render.
+        // Ask vanilla to provide the normal dimmed/blurred screen background.
+        this.extractTransparentBackground(graphics);
+    }
+
     private static final int PAGE_SIZE=5;private final Screen parent;private final List<String> entries;private final int page;private EditBox input;
     public BlockWhitelistScreen(Screen parent){this(parent,ClientConfig.blockWhitelist(),0);}
     private BlockWhitelistScreen(Screen parent,List<String> entries,int page){super(Component.literal("Jukebox 360 Audio Source Blocks"));this.parent=parent;this.entries=new ArrayList<>(entries);this.page=Math.max(0,page);}

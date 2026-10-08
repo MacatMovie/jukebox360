@@ -1,12 +1,21 @@
 package com.macatmovie.jukebox360.client.gui;
 
 import com.macatmovie.jukebox360.config.ClientConfig;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
 
 public final class Jukebox360ConfigScreen extends Screen {
+    @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        // Config screens are standalone screens; never leave the previous UI visible underneath.
+        context.fill(0, 0, this.width, this.height, 0xF0101010);
+        super.render(context, mouseX, mouseY, delta);
+    }
+
+
     private final Screen parent;
     private BlendSlider blendSlider;
     private ButtonWidget debugButton;

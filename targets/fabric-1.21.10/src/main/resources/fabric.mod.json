@@ -16,6 +16,9 @@
     ],
     "voicechat": [
       "com.macatmovie.jukebox360.compat.voicechat.Jukebox360VoicechatPlugin"
+    ],
+    "modmenu": [
+      "com.macatmovie.jukebox360.compat.modmenu.Jukebox360ModMenu"
     ]
   },
   "mixins": [
@@ -27,6 +30,7 @@
     "java": ">=21"
   },
   "suggests": {
-    "voicechat_api": ">=2.6.0"
+    "voicechat_api": ">=2.6.0",
+    "modmenu": "*"
   }
 }

@@ -1,6 +1,7 @@
 package com.macatmovie.jukebox360.client.gui;
 
 import com.macatmovie.jukebox360.config.ClientConfig;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -9,6 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class BlockWhitelistScreen extends Screen {
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        graphics.fill(0, 0, this.width, this.height, 0xF0101010);
+        super.render(graphics, mouseX, mouseY, partialTick);
+    }
+
+
     private static final int PAGE_SIZE=5;private final Screen parent;private final List<String> entries;private final int page;private EditBox input;
     public BlockWhitelistScreen(Screen parent){this(parent,ClientConfig.blockWhitelist(),0);}
     private BlockWhitelistScreen(Screen parent,List<String> entries,int page){super(Component.literal("Jukebox 360 Audio Source Blocks"));this.parent=parent;this.entries=new ArrayList<>(entries);this.page=Math.max(0,page);}

@@ -23,10 +23,15 @@ base {
 }
 
 repositories {
+    maven {
+        name = 'Terraformers'
+        url = 'https://maven.terraformersmc.com/releases'
+    }
     // Loom adds the essential repositories automatically.
 }
 
 dependencies {
+    modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -54,5 +59,10 @@ jar {
         rename { "${it}_${project.archives_base_name}" }
     }
 }
-jar { archiveFileName = "Jukebox_360-fabric-${minecraft_version}-v${mod_version}.jar" }
+jar {
+    archiveFileName = "Jukebox_360-fabric-${minecraft_version}-v${mod_version}.jar"
+}
 
+remapJar {
+    archiveFileName = "Jukebox_360-fabric-${minecraft_version}-v${mod_version}.jar"
+}

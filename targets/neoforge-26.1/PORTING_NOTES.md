@@ -1,11 +1,11 @@
-# Jukebox 360 — NeoForge 26.1 v1.1.0
+# Jukebox 360 — NeoForge 26.1 v1.1.1
 
 - Concrete development target: Minecraft 26.1.2 / NeoForge 26.1.2.94.
 - Metadata accepts the 26.1.x line (`[26.1,26.2)`).
 - Java 25 source/toolchain.
-- Mod version: 1.1.0.
+- Mod version: 1.1.1.
 - Uses NeoForge's normal and streaming sound-source events instead of fragile synthetic `SoundEngine` lambda names.
-- Keeps the v1.1.0 safe config accessors: defaults are returned until the client config is bound, preventing the fresh-instance startup crash found in NeoForge 1.21.1 v1.0.7.
+- Keeps the v1.1.1 safe config accessors: defaults are returned until the client config is bound, preventing the fresh-instance startup crash found in NeoForge 1.21.1 v1.0.7.
 - Music-disc compatibility remains category-based (`SoundSource.RECORDS`), including Etched/custom discs that use the records source.
 - This source package was prepared without running Gradle or compiling it.
 

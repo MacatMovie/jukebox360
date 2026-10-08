@@ -8,8 +8,7 @@
     "MinecraftClientTickMixin",
     "SourceMixin",
     "ChannelSourceManagerMixin",
-    "SoundSystemThreadLocalMixin",
-    "SoundOptionsScreenMixin"
+    "SoundSystemThreadLocalMixin"
   ],
   "injectors": {
     "defaultRequire": 0

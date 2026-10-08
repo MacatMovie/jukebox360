@@ -1,12 +1,20 @@
 package com.macatmovie.jukebox360.client.gui;
 
 import com.macatmovie.jukebox360.config.ClientConfig;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 public final class Jukebox360ConfigScreen extends Screen {
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        graphics.fill(0, 0, this.width, this.height, 0xF0101010);
+        super.render(graphics, mouseX, mouseY, partialTick);
+    }
+
+
     private final Screen parent;
     private BlendSlider blendSlider;
     private Button debugButton;

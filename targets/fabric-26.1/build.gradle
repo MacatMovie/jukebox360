@@ -24,12 +24,17 @@ base {
 
 repositories {
     maven {
+        name = 'Terraformers'
+        url = 'https://maven.terraformersmc.com/releases'
+    }
+    maven {
         name = 'MaxHenkel'
         url = 'https://maven.maxhenkel.de/repository/public'
     }
 }
 
 dependencies {
+    compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
     implementation "de.maxhenkel.voicechat:voicechat-api:${project.voicechat_api_version}"

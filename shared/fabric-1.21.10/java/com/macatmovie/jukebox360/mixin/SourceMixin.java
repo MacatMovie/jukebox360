@@ -28,10 +28,13 @@ public abstract class SourceMixin implements SourceTagAccessor {
     @Unique private boolean jukebox360$records;
     @Unique private boolean jukebox360$affected;
     @Unique private Vec3d jukebox360$worldPos;
+    @Unique private static final double jukebox360$SMOOTHING_TIME_SECONDS = 0.075;
+    @Unique private Vec3d jukebox360$smoothedProjectedPos = null;
+    @Unique private long jukebox360$lastProjectionNanos = 0L;
 
     @Override public void jukebox360$setRecords(boolean records) { this.jukebox360$records = records; }
     @Override public boolean jukebox360$isRecords() { return this.jukebox360$records; }
-    @Override public void jukebox360$setAffected(boolean affected) { this.jukebox360$affected = affected; }
+    @Override public void jukebox360$setAffected(boolean affected) { this.jukebox360$affected = affected; if (!affected) jukebox360$resetSmoothing(); }
     @Override public boolean jukebox360$isAffected() { return this.jukebox360$affected; }
     @Override public void jukebox360$setWorldPos(Vec3d pos) { this.jukebox360$worldPos = pos; }
     @Override public Vec3d jukebox360$getWorldPos() { return this.jukebox360$worldPos; }
@@ -60,6 +63,7 @@ public abstract class SourceMixin implements SourceTagAccessor {
         if (blendedDirection.lengthSquared() < 1.0E-10D) blendedDirection = worldDirection;
 
         Vec3d output = ear.add(blendedDirection.normalize().multiply(distance));
+        output = jukebox360$smoothProjectedPosition(output);
         AL10.alSourcei(this.pointer, AL10.AL_SOURCE_RELATIVE, AL10.AL_FALSE);
         AL10.alSource3f(this.pointer, AL10.AL_POSITION, (float) output.x, (float) output.y, (float) output.z);
 
@@ -69,6 +73,34 @@ public abstract class SourceMixin implements SourceTagAccessor {
         }
     }
 
+
+    @Unique
+    private Vec3d jukebox360$smoothProjectedPosition(Vec3d target) {
+        long now = System.nanoTime();
+        if (this.jukebox360$smoothedProjectedPos == null || this.jukebox360$lastProjectionNanos == 0L) {
+            this.jukebox360$smoothedProjectedPos = target;
+            this.jukebox360$lastProjectionNanos = now;
+            return target;
+        }
+        double dt = (now - this.jukebox360$lastProjectionNanos) / 1_000_000_000.0;
+        this.jukebox360$lastProjectionNanos = now;
+        if (dt <= 0.0 || dt > 0.5) {
+            this.jukebox360$smoothedProjectedPos = target;
+            return target;
+        }
+        double alpha = 1.0 - Math.exp(-dt / jukebox360$SMOOTHING_TIME_SECONDS);
+        alpha = Math.max(0.0, Math.min(1.0, alpha));
+        Vec3d current = this.jukebox360$smoothedProjectedPos;
+        Vec3d smoothed = current.add(target.subtract(current).multiply(alpha));
+        this.jukebox360$smoothedProjectedPos = smoothed;
+        return smoothed;
+    }
+
+    @Unique
+    private void jukebox360$resetSmoothing() {
+        this.jukebox360$smoothedProjectedPos = null;
+        this.jukebox360$lastProjectionNanos = 0L;
+    }
     @Inject(method = "setPosition", at = @At("TAIL"))
     private void jukebox360$afterSetPosition(Vec3d position, CallbackInfo ci) {
         if (this.jukebox360$affected) {
@@ -83,5 +115,6 @@ public abstract class SourceMixin implements SourceTagAccessor {
         this.jukebox360$records = false;
         this.jukebox360$affected = false;
         this.jukebox360$worldPos = null;
+        jukebox360$resetSmoothing();
     }
 }

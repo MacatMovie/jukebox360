@@ -26,11 +26,14 @@ public class ChannelOpenALMixin implements ChannelTagAccessor {
     @Unique private boolean jukebox360$records = false;
     @Unique private boolean jukebox360$affected = false;
     @Unique private Vec3 jukebox360$worldPos = null;
+    @Unique private static final double jukebox360$SMOOTHING_TIME_SECONDS = 0.075;
+    @Unique private Vec3 jukebox360$smoothedProjectedPos = null;
+    @Unique private long jukebox360$lastProjectionNanos = 0L;
 
     @Override public void jukebox360$setRecords(boolean records) { this.jukebox360$records = records; }
     @Override public boolean jukebox360$isRecords() { return this.jukebox360$records; }
 
-    @Override public void jukebox360$setAffected(boolean affected) { this.jukebox360$affected = affected; }
+    @Override public void jukebox360$setAffected(boolean affected) { this.jukebox360$affected = affected; if (!affected) jukebox360$resetSmoothing(); }
     @Override public boolean jukebox360$isAffected() { return this.jukebox360$affected; }
 
     @Override public void jukebox360$setWorldPos(Vec3 pos) { this.jukebox360$worldPos = pos; }
@@ -63,6 +66,7 @@ public class ChannelOpenALMixin implements ChannelTagAccessor {
         blendedDir = blendedDir.normalize();
 
         Vec3 out = ear.add(blendedDir.scale(dist));
+        out = jukebox360$smoothProjectedPosition(out);
 
         AL10.alSourcei(this.source, AL10.AL_SOURCE_RELATIVE, AL10.AL_FALSE);
         AL10.alSource3f(this.source, AL10.AL_POSITION, (float) out.x, (float) out.y, (float) out.z);
@@ -76,6 +80,34 @@ public class ChannelOpenALMixin implements ChannelTagAccessor {
         }
     }
 
+
+    @Unique
+    private Vec3 jukebox360$smoothProjectedPosition(Vec3 target) {
+        long now = System.nanoTime();
+        if (this.jukebox360$smoothedProjectedPos == null || this.jukebox360$lastProjectionNanos == 0L) {
+            this.jukebox360$smoothedProjectedPos = target;
+            this.jukebox360$lastProjectionNanos = now;
+            return target;
+        }
+        double dt = (now - this.jukebox360$lastProjectionNanos) / 1_000_000_000.0;
+        this.jukebox360$lastProjectionNanos = now;
+        if (dt <= 0.0 || dt > 0.5) {
+            this.jukebox360$smoothedProjectedPos = target;
+            return target;
+        }
+        double alpha = 1.0 - Math.exp(-dt / jukebox360$SMOOTHING_TIME_SECONDS);
+        alpha = Math.max(0.0, Math.min(1.0, alpha));
+        Vec3 current = this.jukebox360$smoothedProjectedPos;
+        Vec3 smoothed = current.add(target.subtract(current).scale(alpha));
+        this.jukebox360$smoothedProjectedPos = smoothed;
+        return smoothed;
+    }
+
+    @Unique
+    private void jukebox360$resetSmoothing() {
+        this.jukebox360$smoothedProjectedPos = null;
+        this.jukebox360$lastProjectionNanos = 0L;
+    }
     @Inject(method = "m_83652_(I)V", at = @At("TAIL"), remap = false, require = 0)
     private void jukebox360$after_m83652(int v, CallbackInfo ci) {
         applyProjection();
@@ -123,5 +155,6 @@ private void jukebox360$after_setVolume(float v, CallbackInfo ci) {
         jukebox360$records = false;
         jukebox360$affected = false;
         jukebox360$worldPos = null;
+        jukebox360$resetSmoothing();
     }
 }

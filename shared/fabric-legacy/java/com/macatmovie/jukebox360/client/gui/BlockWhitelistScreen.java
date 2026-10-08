@@ -1,6 +1,7 @@
 package com.macatmovie.jukebox360.client.gui;
 
 import com.macatmovie.jukebox360.config.ClientConfig;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -10,6 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class BlockWhitelistScreen extends Screen {
+    @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        // Config screens are standalone screens; never leave the previous UI visible underneath.
+        context.fill(0, 0, this.width, this.height, 0xF0101010);
+        super.render(context, mouseX, mouseY, delta);
+    }
+
+
     private static final int PAGE_SIZE = 5;
     private final Screen parent;
     private final List<String> entries;

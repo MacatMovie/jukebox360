@@ -27,10 +27,17 @@ public class SourceMixin implements SourceTagAccessor {
     @Unique private boolean jukebox360$affected = false;
     @Unique private Vec3d jukebox360$worldPos = null;
 
+    @Unique private static final double jukebox360$SMOOTHING_TIME_SECONDS = 0.075;
+    @Unique private Vec3d jukebox360$smoothedProjectedPos = null;
+    @Unique private long jukebox360$lastProjectionNanos = 0L;
+
     @Override public void jukebox360$setRecords(boolean records) { this.jukebox360$records = records; }
     @Override public boolean jukebox360$isRecords() { return this.jukebox360$records; }
 
-    @Override public void jukebox360$setAffected(boolean affected) { this.jukebox360$affected = affected; }
+    @Override public void jukebox360$setAffected(boolean affected) {
+        this.jukebox360$affected = affected;
+        if (!affected) jukebox360$resetSmoothing();
+    }
     @Override public boolean jukebox360$isAffected() { return this.jukebox360$affected; }
 
     @Override public void jukebox360$setWorldPos(Vec3d pos) { this.jukebox360$worldPos = pos; }
@@ -65,6 +72,8 @@ public class SourceMixin implements SourceTagAccessor {
 
         Vec3d out = ear.add(blendedDir.multiply(dist));
 
+        out = jukebox360$smoothProjectedPosition(out);
+
         AL10.alSourcei(this.pointer, AL10.AL_SOURCE_RELATIVE, AL10.AL_FALSE);
         AL10.alSource3f(this.pointer, AL10.AL_POSITION, (float) out.x, (float) out.y, (float) out.z);
 
@@ -77,11 +86,50 @@ public class SourceMixin implements SourceTagAccessor {
         }
     }
 
+    @Unique
+    private Vec3d jukebox360$smoothProjectedPosition(Vec3d target) {
+        long now = System.nanoTime();
+
+        // First update (or a long pause/source reuse) should snap immediately rather
+        // than spending several ticks catching up from an obsolete position.
+        if (this.jukebox360$smoothedProjectedPos == null || this.jukebox360$lastProjectionNanos == 0L) {
+            this.jukebox360$smoothedProjectedPos = target;
+            this.jukebox360$lastProjectionNanos = now;
+            return target;
+        }
+
+        double dt = (now - this.jukebox360$lastProjectionNanos) / 1_000_000_000.0;
+        this.jukebox360$lastProjectionNanos = now;
+
+        if (dt <= 0.0 || dt > 0.5) {
+            this.jukebox360$smoothedProjectedPos = target;
+            return target;
+        }
+
+        // Exponential smoothing is frame-rate/tick-rate independent. With the
+        // current 20 Hz update path and a 75 ms time constant, each normal tick
+        // moves about 49% toward the new projected position.
+        double alpha = 1.0 - Math.exp(-dt / jukebox360$SMOOTHING_TIME_SECONDS);
+        alpha = Math.max(0.0, Math.min(1.0, alpha));
+
+        Vec3d current = this.jukebox360$smoothedProjectedPos;
+        Vec3d smoothed = current.add(target.subtract(current).multiply(alpha));
+        this.jukebox360$smoothedProjectedPos = smoothed;
+        return smoothed;
+    }
+
+    @Unique
+    private void jukebox360$resetSmoothing() {
+        this.jukebox360$smoothedProjectedPos = null;
+        this.jukebox360$lastProjectionNanos = 0L;
+    }
+
     @Inject(method = "stop", at = @At("HEAD"))
     private void jukebox360$stop(CallbackInfo ci) {
         Jukebox360Runtime.remove(this);
         this.jukebox360$affected = false;
         this.jukebox360$records = false;
         this.jukebox360$worldPos = null;
+        jukebox360$resetSmoothing();
     }
 }

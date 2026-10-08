@@ -132,6 +132,29 @@ function Build-Target([string]$Name) {
             $cmdLine = $quotedGradle + ' ' + ($gradleArgs -join ' ') + ' 2>&1'
             & cmd.exe /d /s /c $cmdLine | ForEach-Object { Write-Host $_ }
             $gradleExitCode = $LASTEXITCODE
+
+            # NeoForge 26.1 / NeoForm can occasionally retain a stale generated
+            # patch workspace under targets/neoforge-26.1/build/neoForm. In that
+            # state patchUserDev may fail on vanilla Blocks.java even though the
+            # mod source itself is fine. Recover once automatically by deleting
+            # only this target's generated NeoForm workspace and rebuilding.
+            if ($gradleExitCode -ne 0 -and $Name -eq 'neoforge-26.1') {
+                $neoFormDir = Join-Path $dir 'build\neoForm'
+                Write-Host ""
+                Write-Host "NeoForge 26.1 build failed. Clearing its generated NeoForm workspace and retrying once..." -ForegroundColor Yellow
+                if (Test-Path $neoFormDir) {
+                    Remove-Item $neoFormDir -Recurse -Force -ErrorAction Stop
+                    Write-Host "Removed: $neoFormDir" -ForegroundColor DarkGray
+                } else {
+                    Write-Host "No existing NeoForm workspace was present; retrying once anyway." -ForegroundColor DarkGray
+                }
+
+                & $gradle --stop | Out-Host
+                Write-Host "Retrying: $gradle $($gradleArgs -join ' ')" -ForegroundColor DarkGray
+                & cmd.exe /d /s /c $cmdLine | ForEach-Object { Write-Host $_ }
+                $gradleExitCode = $LASTEXITCODE
+            }
+
             if ($gradleExitCode -ne 0) { throw "$Name build failed with exit code $gradleExitCode" }
             [void](Collect-TargetJars $Name)
         } finally { Pop-Location }
